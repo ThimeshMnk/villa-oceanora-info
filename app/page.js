@@ -10,6 +10,8 @@ import {
   Waves,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { Edit3 } from "lucide-react";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -119,9 +121,7 @@ export default function Home() {
           className="text-center mb-10"
         >
           <div className="flex justify-center mb-4">
-            {/* This container keeps the glass effect around your logo */}
             <div className="flex justify-center mb-4">
-              {/* Changed rounded-2xl to rounded-full for a perfect circle */}
               <div className="bg-black backdrop-blur-md p- rounded-full border border-white/30 shadow-2xl w-24 h-24 flex items-center justify-center">
                 <img
                   src="/images/logo.png"
@@ -218,6 +218,12 @@ export default function Home() {
                           <h2 className="text-2xl font-black text-slate-800 leading-tight tracking-tight">
                             {item.guest_name}
                           </h2>
+                          <Link
+                            href={`/admin/edit/${item.id}`}
+                            className="text-[10px] text-blue-500 font-bold uppercase flex items-center gap-1 hover:underline"
+                          >
+                            <Edit3 size={10} /> සංස්කරණය කරන්න (Edit)
+                          </Link>
                           <div className="flex items-center gap-2 mt-1">
                             {/* Show Country if available */}
                             {item.country && (
