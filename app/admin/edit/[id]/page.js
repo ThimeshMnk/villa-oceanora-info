@@ -47,20 +47,24 @@ export default function EditBooking() {
   }, [params.id]);
 
   // 2. Handle Update
-  const handleUpdate = async (e) => {
-    e.preventDefault();
-    const { error } = await supabase
-      .from('bookings')
-      .update(formData)
-      .eq('id', params.id);
+const handleUpdate = async (e) => {
+  e.preventDefault();
 
-    if (error) alert(error.message);
-    else {
-      alert("දත්ත යාවත්කාලීන කරන ලදී! (Updated successfully)");
-      router.push('/');
-    }
-  };
+  // formData එකෙන් id සහ created_at ඉවත් කර ඉතිරි දත්ත (updateData) ලබා ගැනීම
+  const { id, created_at, ...updateData } = formData;
 
+  const { error } = await supabase
+    .from('bookings')
+    .update(updateData) // මෙහිදී යවන්නේ id නොමැති දත්ත පමණි
+    .eq('id', params.id);
+
+  if (error) {
+    alert(error.message);
+  } else {
+    alert("දත්ත යාවත්කාලීන කරන ලදී! (Updated successfully)");
+    router.push('/');
+  }
+};
   // 3. Handle Delete (Optional but useful)
   const handleDelete = async () => {
     if (confirm("මෙම වෙන්කිරීම ඉවත් කිරීමට ඔබට සහතිකද? (Are you sure you want to delete?)")) {

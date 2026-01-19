@@ -7,7 +7,8 @@ import {
   User,
   Home as RoomIcon,
   CheckCircle2,
-  Waves,
+  Plus,
+  ClipboardList 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -138,6 +139,12 @@ export default function Home() {
           <p className="text-blue-100 font-medium tracking-[0.2em] uppercase text-xs mt-2 opacity-80">
             Luxury Management
           </p>
+
+          <div className="flex justify-center gap-3 mt-4">
+          <Link href="/admin" className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white/20 transition-all">
+            <Plus size={14} /> අලුත් එකක් ඇතුලත් කරන්න (Add New)
+          </Link>
+        </div>
         </motion.div>
         <div className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-5 border border-white/20 shadow-2xl mb-8">
           <p className="text-[10px] font-bold text-white/60 mb-4 uppercase tracking-[0.2em] text-center">
@@ -303,6 +310,15 @@ export default function Home() {
             </motion.div>
           )}
         </div>
+
+        <Link href="/admin">
+      <motion.div 
+        whileTap={{ scale: 0.9 }}
+        className="fixed bottom-6 right-6 z-50 bg-blue-600 text-white w-16 h-16 rounded-2xl shadow-2xl flex items-center justify-center border-2 border-white/20 shadow-blue-500/50"
+      >
+        <Plus size={32} strokeWidth={3} />
+      </motion.div>
+    </Link>
       </div>
     </main>
   );

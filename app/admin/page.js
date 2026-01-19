@@ -3,7 +3,6 @@ import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 
-
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
@@ -36,7 +35,12 @@ export default function Admin() {
 
   return (
     <main className="min-h-screen bg-slate-900 text-white p-6">
-      <h1 className="text-2xl font-bold mb-6">Add New Booking</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Add New Booking</h1>
+        <Link href="/" className="text-gray-400 text-sm">
+          Cancel
+        </Link>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
         <div>
