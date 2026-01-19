@@ -2,6 +2,7 @@
 import { useState, useEffect, React } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { useRouter, useParams } from 'next/navigation';
+import Link from 'next/link';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -26,7 +27,6 @@ export default function EditBooking() {
     passport_no: "",
   });
 
-  // 1. Fetch existing data when page loads
   useEffect(() => {
     async function fetchBooking() {
       const { data, error } = await supabase
@@ -46,16 +46,14 @@ export default function EditBooking() {
     fetchBooking();
   }, [params.id]);
 
-  // 2. Handle Update
 const handleUpdate = async (e) => {
   e.preventDefault();
 
-  // formData එකෙන් id සහ created_at ඉවත් කර ඉතිරි දත්ත (updateData) ලබා ගැනීම
   const { id, created_at, ...updateData } = formData;
 
   const { error } = await supabase
     .from('bookings')
-    .update(updateData) // මෙහිදී යවන්නේ id නොමැති දත්ත පමණි
+    .update(updateData) 
     .eq('id', params.id);
 
   if (error) {
@@ -65,7 +63,6 @@ const handleUpdate = async (e) => {
     router.push('/');
   }
 };
-  // 3. Handle Delete (Optional but useful)
   const handleDelete = async () => {
     if (confirm("මෙම වෙන්කිරීම ඉවත් කිරීමට ඔබට සහතිකද? (Are you sure you want to delete?)")) {
       const { error } = await supabase.from('bookings').delete().eq('id', params.id);

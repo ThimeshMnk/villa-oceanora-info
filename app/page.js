@@ -8,7 +8,6 @@ import {
   Home as RoomIcon,
   CheckCircle2,
   Plus,
-  ClipboardList 
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
