@@ -8,10 +8,12 @@ import {
   Home as RoomIcon,
   CheckCircle2,
   Plus,
+  RefreshCw,
+  Receipt,
+  Edit3,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { Edit3 } from "lucide-react";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -33,9 +35,8 @@ const getSinhalaRoomName = (engName) => {
     "Balcony 02": "බැල්කනි 02",
     "Double Room 01": "අංකල්ගේ කාමරය",
     "Double Room 02": "සීයගේ කාමරය",
-    "Double Room 03": "ගේ අතුලේ පොඩි කාමරය",
+    "Double Room 03": "ගේ ඇතුලේ පොඩි කාමරය",
   };
-
   const siName = roomNames[engName];
   return siName ? `(${siName})` : "";
 };
@@ -46,12 +47,29 @@ export default function Home() {
   const [filter, setFilter] = useState("all");
   const [customDate, setCustomDate] = useState("");
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [lkrRate, setLkrRate] = useState(0);
 
+  // Background Slider Logic
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % sliderImages.length);
     }, 5000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Fetch Live Exchange Rate (USD to LKR)
+  useEffect(() => {
+    async function fetchRate() {
+      try {
+        const response = await fetch("https://open.er-api.com/v6/latest/USD");
+        const data = await response.json();
+        setLkrRate(data.rates.LKR);
+      } catch (error) {
+        console.error("Error fetching rate:", error);
+        setLkrRate(300); // Fallback
+      }
+    }
+    fetchRate();
   }, []);
 
   useEffect(() => {
@@ -87,10 +105,9 @@ export default function Home() {
     return diff;
   };
 
-
-
   return (
-    <main className="relative min-h-screen w-full overflow-x-hidden">
+    <main className="relative min-h-screen w-full overflow-x-hidden bg-slate-950">
+      {/* 1. BACKGROUND SLIDER */}
       <div className="fixed inset-0 z-0">
         <AnimatePresence mode="wait">
           <motion.img
@@ -103,71 +120,85 @@ export default function Home() {
             className="w-full h-full object-cover"
           />
         </AnimatePresence>
-        <div className="absolute inset-0 bg-black/40 backdrop-contrast-125" />
+        <div className="absolute inset-0 bg-black/50 backdrop-contrast-125" />
       </div>
 
-      <div className="relative z-10 flex flex-col items-center pt-12 pb-20 px-4">
+      {/* 2. CONTENT LAYER */}
+      <div className="relative z-10 flex flex-col items-center pt-12 pb-24 px-4">
+        {/* BRANDING SECTION */}
         <motion.div
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-10"
+          className="text-center mb-12"
         >
-          <div className="flex justify-center mb-4">
-            <div className="flex justify-center mb-4">
-              <div className="bg-black backdrop-blur-md p- rounded-full border border-white/30 shadow-2xl w-24 h-24 flex items-center justify-center">
-                <img
-                  src="/images/logo.png"
-                  alt="Villa Oceanora Logo"
-                  className="w-full h-full object-contain rounded-full"
-                />
-              </div>
+          <div className="flex justify-center mb-6">
+            <div className="bg-black/60 backdrop-blur-xl p-1 rounded-full border-2 border-white/30 shadow-[0_0_30px_rgba(255,255,255,0.2)] w-28 h-28 flex items-center justify-center">
+              <img
+                src="/images/logo.png"
+                alt="Logo"
+                className="w-full h-full object-contain rounded-full"
+              />
             </div>
           </div>
 
-          <h1 className="text-5xl font-black text-white tracking-tighter drop-shadow-lg">
+          <h1 className="text-6xl font-black text-white tracking-tighter drop-shadow-2xl italic">
             Villa Oceanora
           </h1>
-          <p className="text-blue-100 font-medium tracking-[0.2em] uppercase text-xs mt-2 opacity-80">
-            Luxury Management
-          </p>
 
-          <div className="flex justify-center gap-3 mt-4">
-          <Link href="/admin" className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 hover:bg-white/20 transition-all">
-            <Plus size={14} /> අලුත් එකක් ඇතුලත් කරන්න (Add New)
-          </Link>
-        </div>
+          {lkrRate > 0 && (
+            <motion.div
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ repeat: Infinity, duration: 3 }}
+              className="mt-6 inline-flex items-center gap-3 bg-emerald-950/80 backdrop-blur-md border border-emerald-500/50 px-6 py-2.5 rounded-full shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+            >
+              <RefreshCw
+                size={14}
+                className="text-emerald-400 animate-spin-slow"
+              />
+              <span className="text-[15px] text-emerald-50 font-black uppercase tracking-widest">
+                Live Rate: $1 = රු. {lkrRate.toFixed(2)}
+              </span>
+            </motion.div>
+          )}
+
+          <div className="flex flex-wrap justify-center gap-4 mt-8">
+            <Link
+              href="/admin"
+              className="bg-blue-600 hover:bg-blue-500 text-white px-8 py-4 rounded-2xl text-[14px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl transition-all"
+            >
+              <Plus size={18} strokeWidth={3} />
+              <span>Add New Booking</span>
+            </Link>
+            <Link
+              href="/expenses"
+              className="bg-slate-900/90 backdrop-blur-md border-2 border-white/10 text-white px-8 py-4 rounded-2xl text-[14px] font-black uppercase tracking-widest flex items-center gap-3 shadow-xl transition-all"
+            >
+              <Receipt size={18} />
+              <span>වියදම් (Expenses)</span>
+            </Link>
+          </div>
         </motion.div>
-        <div className="w-full max-w-md bg-white/10 backdrop-blur-xl rounded-[2.5rem] p-5 border border-white/20 shadow-2xl mb-8">
-          <p className="text-[10px] font-bold text-white/60 mb-4 uppercase tracking-[0.2em] text-center">
-            වෙන්කිරීම් සොයන්න (Search Bookings)
-          </p>
 
-          <div className="grid grid-cols-3 gap-2 mb-4">
+        {/* SEARCH & FILTER BOX */}
+        <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-2xl rounded-[2.5rem] p-6 border border-white/20 shadow-2xl mb-12">
+          <p className="text-[11px] font-black text-white/60 mb-5 uppercase tracking-[0.3em] text-center">
+            වෙන්කිරීම් සොයන්න
+          </p>
+          <div className="grid grid-cols-3 gap-3 mb-5">
             {["today", "tomorrow", "all"].map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`py-3 rounded-2xl text-xs font-black transition-all uppercase tracking-wider ${
+                className={`py-3.5 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all ${
                   filter === f
-                    ? "bg-white text-blue-900 shadow-xl"
-                    : "bg-white/10 text-white hover:bg-white/20 border border-white/10"
+                    ? "bg-white text-slate-900 shadow-lg"
+                    : "bg-white/5 text-white border border-white/10"
                 }`}
               >
                 {f === "today" ? "අද" : f === "tomorrow" ? "හෙට" : "සියල්ල"}
               </button>
             ))}
-
-            {/* <button
-              onClick={handleSync}
-              disabled={isSyncing}
-              className="mt-4 w-full bg-blue-600/20 border border-white/30 text-white py-3 rounded-2xl text-xs font-bold uppercase tracking-widest backdrop-blur-md"
-            >
-              {isSyncing
-                ? "සමමුහුර්ත වෙමින්... (Syncing)"
-                : "අලුත් දත්ත ලබාගන්න (Sync Booking.com)"}
-            </button> */}
           </div>
-
           <div className="relative">
             <input
               type="date"
@@ -175,134 +206,147 @@ export default function Home() {
                 setCustomDate(e.target.value);
                 setFilter("custom");
               }}
-              className="w-full bg-white/10 border border-white/20 rounded-2xl py-4 px-5 text-sm font-bold text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-white/50 transition-all cursor-pointer"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-6 text-sm font-bold text-white outline-none"
+              style={{ colorScheme: "dark" }}
             />
-            <CalIcon className="absolute right-5 top-4 text-white/50 w-5 h-5 pointer-events-none" />
+            <CalIcon
+              className="absolute right-5 top-4 text-white/40 pointer-events-none"
+              size={20}
+            />
           </div>
         </div>
 
-        {/* BOOKING CARDS */}
-        <div className="w-full max-w-md space-y-6">
-          <div className="flex justify-between items-center px-4 mb-2">
-            <h3 className="font-black text-white/80 uppercase text-[10px] tracking-[0.3em]">
+        {/* 3-COLUMN BOOKING GRID */}
+        <div className="w-full max-w-7xl mx-auto">
+          <div className="flex justify-between items-center px-6 mb-8 max-w-md mx-auto lg:max-w-none">
+            <h3 className="font-black text-white/80 uppercase text-[14px] tracking-[0.4em]">
               පැමිණීම් ලැයිස්තුව
             </h3>
-            <span className="bg-white/20 backdrop-blur-md text-white text-[10px] font-black px-3 py-1 rounded-full border border-white/10">
+            <span className="bg-white/20 backdrop-blur-md text-white text-[14px] font-black px-4 py-1.5 rounded-full border border-white/10">
               {bookings.length} BOOKINGS
             </span>
           </div>
 
-          <AnimatePresence>
-            {loading ? (
-              <div className="text-center py-20 text-white/50 font-bold animate-pulse">
-                දත්ත ලබා ගනිමින්...
-              </div>
-            ) : (
-              bookings.map((item, index) => (
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  key={item.id}
-                  className="bg-white/90 backdrop-blur-md rounded-[2.5rem] shadow-2xl overflow-hidden border border-white"
-                >
-                  <div className="p-7">
-                    <div className="flex justify-between items-start mb-6">
-                      <div className="flex items-center gap-4">
-                        <div className="bg-blue-600 p-3 rounded-2xl text-white shadow-lg shadow-blue-200">
-                          <User size={24} />
-                        </div>
-                        <div>
-                          <h2 className="text-2xl font-black text-slate-800 leading-tight tracking-tight">
-                            {item.guest_name}
-                          </h2>
-                          <Link
-                            href={`/admin/edit/${item.id}`}
-                            className="text-[10px] text-blue-500 font-bold uppercase flex items-center gap-1 hover:underline"
-                          >
-                            <Edit3 size={10} /> සංස්කරණය කරන්න (Edit)
-                          </Link>
-                          <div className="flex items-center gap-2 mt-1">
-                            {/* Show Country if available */}
-                            {item.country && (
-                              <span className="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-0.5 rounded">
-                                🌍 {item.country}
-                              </span>
-                            )}
-                            <div className="flex items-center gap-1.5 text-blue-600 text-[13px] font-black uppercase">
-                              <RoomIcon size={14} /> {item.room_name}{" "}
-                              {getSinhalaRoomName(item.room_name)}
-                            </div>
+          <div className="flex flex-wrap justify-center gap-8">
+            <AnimatePresence>
+              {loading ? (
+                <div className="text-center py-20 text-white/50 font-bold animate-pulse uppercase tracking-widest">
+                  දත්ත ලබා ගනිමින්...
+                </div>
+              ) : (
+                bookings.map((item, index) => (
+                  <motion.div
+                    initial={{ opacity: 0, y: 30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    key={item.id}
+                    className="bg-white/95 backdrop-blur-md rounded-[3rem] shadow-2xl overflow-hidden border border-white w-full md:w-[calc(50%-2rem)] lg:w-[calc(33.33%-2rem)] max-w-md flex flex-col"
+                  >
+                    <div className="p-10 flex flex-col h-full">
+                      {/* Guest Header */}
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="flex items-center gap-4">
+                          <div className="bg-blue-600 p-4 rounded-3xl text-white shadow-xl shadow-blue-200">
+                            <User size={28} />
+                          </div>
+                          <div>
+                            <h2 className="text-2xl font-black text-slate-800 leading-tight tracking-tight">
+                              {item.guest_name}
+                            </h2>
+                            <Link
+                              href={`/admin/edit/${item.id}`}
+                              className="text-[11px] text-blue-600 font-extrabold uppercase flex items-center gap-1 hover:underline mt-1"
+                            >
+                              <Edit3 size={12} /> Edit සංස්කරණය
+                            </Link>
                           </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="grid grid-cols-2 gap-4 bg-slate-100/50 rounded-3xl p-5 border border-slate-200/50 mb-6">
-                      <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                          Check-In
-                        </p>
-                        <p className="text-sm font-black text-slate-700">
-                          {item.check_in}
-                        </p>
+                      {/* Room & Country */}
+                      <div className="space-y-3 mb-6">
+                        <div className="flex items-center gap-2 text-blue-600 text-[13px] font-black uppercase">
+                          <RoomIcon size={16} />
+                          {item.room_name}{" "}
+                          <span className="text-blue-900 lowercase font-bold italic">
+                            {getSinhalaRoomName(item.room_name)}
+                          </span>
+                        </div>
+                        {item.country && (
+                          <div className="inline-block bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-xl border border-slate-200">
+                            🌍 {item.country}
+                          </div>
+                        )}
                       </div>
-                      <div className="border-l border-slate-300 pl-5">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                          Check-Out
-                        </p>
-                        <p className="text-sm font-black text-slate-700">
-                          {item.check_out}
-                        </p>
-                      </div>
-                      <div className="col-span-2 pt-3 border-t border-slate-200 border-dashed flex justify-between items-center">
-                        <span className="text-[11px] font-black text-blue-700 flex items-center gap-1.5 bg-blue-50 px-3 py-1 rounded-full">
-                          <CheckCircle2 size={14} /> දින{" "}
+
+                      {/* Dates Box */}
+                      <div className="grid grid-cols-2 gap-6 bg-slate-50 rounded-4xl p-6 border border-slate-100 mb-8 mt-auto">
+                        <div>
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                            Check-In
+                          </p>
+                          <p className="text-sm font-black text-slate-700">
+                            {item.check_in}
+                          </p>
+                        </div>
+                        <div className="border-l border-slate-200 pl-6">
+                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                            Check-Out
+                          </p>
+                          <p className="text-sm font-black text-slate-700">
+                            {item.check_out}
+                          </p>
+                        </div>
+                        <div className="col-span-2 pt-3 border-t border-slate-200 border-dashed flex items-center gap-2 text-blue-700 font-bold text-[12px]">
+                          <CheckCircle2 size={16} /> දින{" "}
                           {calculateNights(item.check_in, item.check_out)} ක්
                           රැඳී සිටියි
-                        </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">
-                          මුළු මුදල
-                        </p>
-                        <p className="text-3xl font-black text-slate-900 tracking-tighter">
-                          <span className="text-sm font-bold mr-1 italic text-slate-400">
-                            Rs.
-                          </span>
-                          {item.price?.toLocaleString()}
-                        </p>
+                      {/* Price & Call Button */}
+                      <div className="flex justify-between items-end mt-auto">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-[10px] font-bold text-slate-400 uppercase">
+                              මුළු මුදල
+                            </p>
+                            <span className="text-[14px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold">
+                              ${item.price}
+                            </span>
+                          </div>
+                          <p className="text-4xl font-black text-slate-900 tracking-tighter">
+                            <span className="text-sm font-bold mr-1 italic text-slate-400 text-[18px]">
+                              රු.
+                            </span>
+                            {lkrRate > 0
+                              ? (item.price * lkrRate).toLocaleString(
+                                  undefined,
+                                  { maximumFractionDigits: 0 },
+                                )
+                              : "..."}
+                          </p>
+                        </div>
+                        <a
+                          href={`tel:${item.phone_number}`}
+                          className="bg-slate-900 hover:bg-blue-700 text-white w-16 h-16 rounded-3xl flex items-center justify-center shadow-2xl transition-all active:scale-90"
+                        >
+                          <Phone size={28} fill="currentColor" />
+                        </a>
                       </div>
-                      <a
-                        href={`tel:${item.phone_number}`}
-                        className="bg-slate-900 hover:bg-blue-700 text-white w-14 h-14 rounded-2xl flex items-center justify-center shadow-xl transition-all active:scale-90"
-                      >
-                        <Phone size={24} fill="white" />
-                      </a>
                     </div>
-                  </div>
-                </motion.div>
-              ))
-            )}
-          </AnimatePresence>
+                  </motion.div>
+                ))
+              )}
+            </AnimatePresence>
+          </div>
 
           {!loading && bookings.length === 0 && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-20"
-            >
-              <p className="text-white/60 font-bold uppercase tracking-widest text-xs">
-                දත්ත කිසිවක් හමු නොවීය
-              </p>
-            </motion.div>
+            <div className="text-center py-20 text-white/50 font-black uppercase tracking-widest text-xs">
+              දත්ත කිසිවක් හමු නොවීය
+            </div>
           )}
         </div>
-
-      
       </div>
     </main>
   );
