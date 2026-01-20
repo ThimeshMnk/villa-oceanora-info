@@ -31,8 +31,8 @@ const getSinhalaRoomName = (engName) => {
     "Family Room": "පවුලේ කාමරය",
     "Balcony 01": "බැල්කනි 01",
     "Balcony 02": "බැල්කනි 02",
-    "Double Room 01": "සීයගේ කාමරය",
-    "Double Room 03": "ගේ අතුලේ පොඩි කාමරය",
+    "Double Room 01": "අංකල්ගේ කාමරය",
+    "Double Room 02": "සීයගේ කාමරය",
     "Double Room 03": "ගේ අතුලේ පොඩි කාමරය",
   };
 
@@ -87,15 +87,7 @@ export default function Home() {
     return diff;
   };
 
-  const [isSyncing, setIsSyncing] = useState(false);
 
-  const handleSync = async () => {
-    setIsSyncing(true);
-    await fetch("/api/sync");
-    fetchBookings();
-    setIsSyncing(false);
-    alert("දත්ත අලුත් කරන ලදී! (Sync Complete)");
-  };
 
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden">
@@ -310,14 +302,7 @@ export default function Home() {
           )}
         </div>
 
-        <Link href="/admin">
-      <motion.div 
-        whileTap={{ scale: 0.9 }}
-        className="fixed bottom-6 right-6 z-50 bg-blue-600 text-white w-16 h-16 rounded-2xl shadow-2xl flex items-center justify-center border-2 border-white/20 shadow-blue-500/50"
-      >
-        <Plus size={32} strokeWidth={3} />
-      </motion.div>
-    </Link>
+      
       </div>
     </main>
   );
