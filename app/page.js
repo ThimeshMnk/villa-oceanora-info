@@ -229,7 +229,7 @@ export default function Home() {
                                 🌍 {item.country}
                               </span>
                             )}
-                            <div className="flex items-center gap-1.5 text-blue-600 text-[11px] font-black uppercase">
+                            <div className="flex items-center gap-1.5 text-blue-600 text-[13px] font-black uppercase">
                               <RoomIcon size={14} /> {item.room_name}{" "}
                               {getSinhalaRoomName(item.room_name)}
                             </div>
